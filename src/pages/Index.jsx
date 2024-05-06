@@ -1,77 +1,48 @@
-import { Container, VStack, Text, Button, Input, useToast, Table, Thead, Tbody, Tr, Th, Td, IconButton } from "@chakra-ui/react";
+import { Container, VStack, Input, Button, useToast } from "@chakra-ui/react";
 import { useState } from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const [events, setEvents] = useState([]);
-  const [newEvent, setNewEvent] = useState({ name: "", description: "" });
+  const [credentials, setCredentials] = useState({ username: "", password: "" });
   const toast = useToast();
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewEvent({ ...newEvent, [name]: value });
+    setCredentials({ ...credentials, [name]: value });
   };
 
-  const addEvent = () => {
-    if (!newEvent.name || !newEvent.description) {
+  const handleLogin = () => {
+    if (credentials.username === "admin" && credentials.password === "admin") {
+      navigate("/events");
+    } else {
       toast({
-        title: "Error",
-        description: "Name and description are required.",
+        title: "Authentication Failed",
+        description: "Invalid username or password",
         status: "error",
         duration: 2000,
         isClosable: true,
       });
-      return;
     }
-    setEvents([...events, { ...newEvent, id: events.length + 1 }]);
-    setNewEvent({ name: "", description: "" });
-    toast({
-      title: "Success",
-      description: "Event added successfully.",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
-  };
-
-  const deleteEvent = (id) => {
-    setEvents(events.filter(event => event.id !== id));
-  };
-
-  const editEvent = (id) => {
-    const event = events.find(event => event.id === id);
-    setNewEvent({ name: event.name, description: event.description });
-    deleteEvent(id);
   };
 
   return (
-    <Container maxW="container.md" py={8}>
-      <VStack spacing={4} align="stretch">
-        <Text fontSize="2xl" fontWeight="bold">Event Manager</Text>
-        <Input placeholder="Event Name" name="name" value={newEvent.name} onChange={handleInputChange} />
-        <Input placeholder="Event Description" name="description" value={newEvent.description} onChange={handleInputChange} />
-        <Button colorScheme="blue" onClick={addEvent}>Add Event</Button>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Description</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {events.map(event => (
-              <Tr key={event.id}>
-                <Td>{event.name}</Td>
-                <Td>{event.description}</Td>
-                <Td>
-                  <IconButton icon={<FaEdit />} onClick={() => editEvent(event.id)} aria-label="Edit" />
-                  <IconButton icon={<FaTrash />} onClick={() => deleteEvent(event.id)} aria-label="Delete" ml={2} />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
+    <Container centerContent>
+      <VStack spacing={4} mt="100px">
+        <Input
+          placeholder="Username"
+          name="username"
+          value={credentials.username}
+          onChange={handleInputChange}
+        />
+        <Input
+          placeholder="Password"
+          name="password"
+          type="password"
+          value={credentials.password}
+          onChange={handleInputChange}
+        />
+        <Button colorScheme="blue" onClick={handleLogin}>Login</Button>
       </VStack>
     </Container>
   );
